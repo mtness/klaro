@@ -168,14 +168,18 @@ export default class ConsentManager {
         function executeHandler(handler, opts){
             if (handler === undefined)
                 return
-            let handlerFunction
+
             if (typeof handler === 'function'){
-                handlerFunction = handler
-            } else {
-                // eslint-disable-next-line no-new-func
-                handlerFunction = new Function('opts', handler)
+                return handler(opts)
             }
-            return handlerFunction(opts)
+
+            // String callbacks are not supported anymore — they require 'unsafe-eval' which
+            // violates Content Security Policy. Use a proper function instead:
+            //   onAccept: function(opts) { /* your code */ }
+            console.error(
+                '[klaro] String-based callbacks (onAccept/onDecline as strings) are ' +
+                'not supported in CSP-compliant mode. Please use a JavaScript function.'
+            )
         }
 
         let changedServices = 0
